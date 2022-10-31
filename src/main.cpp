@@ -18,7 +18,6 @@ char* readFile(std::string& fileName, int& fileSize)
 	}
 
 	fileSize = static_cast<int>(PHYSFS_fileLength(file));
-	printf("test.txt size: %d\n", fileSize);
 
 	char* buffer = new char[fileSize];
 	PHYSFS_read(file, buffer, 1, static_cast<PHYSFS_uint32>(fileSize));
@@ -44,14 +43,14 @@ char* readFile(std::string& fileName, int& fileSize)
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
 
 	float time = 0;
 
 	char c;
 	std::cout << "Press ESC to exit!" << std::endl;
 
-	PHYSFS_init(NULL);
+	PHYSFS_init(argv[0]);
 
 	PHYSFS_Version compiled;
 	PHYSFS_VERSION(&compiled);
@@ -70,12 +69,7 @@ int main() {
 	PHYSFS_sint64 file_size = PHYSFS_fileLength(file);
 	printf("test.txt size: %d\n", (unsigned int)file_size);
 	*/
-	int file_size = 0;
-	std::string file = "test.txt";
-	char* buffer = readFile(file, file_size);
-
-	printf("File content: %s\n", buffer);
-
+	
 
 	while (true)
 	{
@@ -83,19 +77,34 @@ int main() {
 		
 		if (c == 27)
 			break;
-		else if (c == 'e') { // SHOW ENTITIES
-			
-		}
-		else if (c == 'l') { // LOAD FILE
-			
-		}
+		else if (c == 'l') { // Load all files in base dir
+			std::string filePath = "";
+			char** paths = PHYSFS_enumerateFiles(filePath.c_str());
+			char** path;
+			for (path = paths; *path != nullptr; path++)
+			{
+				PHYSFS_Stat fileStat;
+				std::string fullPath = filePath + '/' + *path;
+				if (PHYSFS_stat(fullPath.c_str(), &fileStat) == 0)
+				{
+				}
+				else if (fileStat.filetype == PHYSFS_FILETYPE_DIRECTORY)
+				{
+					printf("Found folder: [%s].\n", fullPath.c_str());
+				}
+				else {
+					printf("Found file: [%s].\n", fullPath.c_str());
+					
+					// ReadFile					
+					int file_size = 0;
+					char* buffer = readFile(fullPath, file_size);
+					printf("File size: %d\n", file_size);
+					printf("File content: %s\n", buffer);
 
-		else if (c == 'p') { // RUN SOME MASSIVE SAVE & LOADING
-		
-		}
-
-		else {
-
+				}
+			}
+				
+			PHYSFS_freeList(paths);
 		}
 	}
 
