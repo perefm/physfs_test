@@ -28,14 +28,14 @@ file(GLOB_RECURSE HEADER_FILES ${CMAKE_SOURCE_DIR}/src/*.h ${CMAKE_SOURCE_DIR}/s
 file(GLOB_RECURSE RESOURCE_FILES ${CMAKE_SOURCE_DIR}/res/*.rc)
 
 # Dependencies
-find_package(PhysFS REQUIRED)
+find_package(PhysFS CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${RESOURCE_FILES})
 if(MSVC)
 	set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE PhysFS::PhysFS)
+target_link_libraries(${PROJECT_NAME} PRIVATE PhysFS::PhysFS-static)
 
 message($CMAKE_BUILD_TYPE)
 
