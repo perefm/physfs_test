@@ -35,7 +35,7 @@ if(MSVC)
 	set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE PhysFS::PhysFS-static)
+target_link_libraries(${PROJECT_NAME} PRIVATE PhysFS::PhysFS)
 
 message($CMAKE_BUILD_TYPE)
 
