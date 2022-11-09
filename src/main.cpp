@@ -7,7 +7,9 @@
 
 #include "main.h"
 
+#include "Utils/FileManager.h"
 
+using namespace Phoenix;
 
 char* readFile(std::string& fileName, int& fileSize)
 {
@@ -24,52 +26,61 @@ char* readFile(std::string& fileName, int& fileSize)
 	PHYSFS_close(file);
 
 	return buffer;
-	/*#elif defined(EMSCRIPTEN_TARGET)
-		std::ifstream file(_filename, std::ios::in|std::ios::binary|std::ios::ate);
-		assert(file.is_open());
-
-		*_size = file.tellg();
-		assert(*_size != 0);
-
-		natU8* buffer = new natU8[*_size];
-		file.seekg (0, std::ios::beg);
-		file.read ((char*)buffer, *_size);
-		file.close();
-
-		return buffer;
-	#else
-
-	#endif*/
 }
 
+void printBuffer(std::string fileName, char* buffer, int buffersize) {
+	printf("File name: %s\n", fileName.c_str());
+	printf("File size: %d\n", buffersize);
+	printf("File content:\n%s\n", buffer);
+	printf("-----------\n");
+}
 
 int main(int argc, char* argv[]) {
 
-	float time = 0;
-
-	char c;
 	std::cout << "Press ESC to exit!" << std::endl;
 
+	FileManager file;
+
+	// Init PhysFS and mount a FOLDER file
+	file.init(argv[0]);
+	printf("PhysFS version: %s\n", file.getVersion().c_str());
+		
+	file.mountData("test_files"); // Mount a folder
+	char* fileData = nullptr;
+	uint32_t fileSize;
+	bool test = file.loadFileToMem("test_files/kaka.txt", fileData, fileSize); // Open a file from folder
+	printBuffer("[FOLDER] test_files/kaka.txt", fileData, fileSize);
+	
+	file.deinit();
+	delete[] fileData;
+	fileSize = 0;
+
+	// Init PhysFS and mount a ZIP file
+	file.init(argv[0]);
+	file.mountData("test_files/data.zip");
+	file.loadFileToMem("test.txt", fileData, fileSize);
+	printBuffer("[FILE] test.txt", fileData, fileSize);
+
+	delete[] fileData;
+	fileSize = 0;
+	file.loadFileToMem("folder two/test.txt", fileData, fileSize);
+	printBuffer("[FILE] folder two/test.txt", fileData, fileSize);
+
+	delete[] fileData;
+	fileSize = 0;
+	file.deinit();
+
+	/*
+	// Test: Open a zip file and show the content
+	char c;
 	PHYSFS_init(argv[0]);
 
 	PHYSFS_Version compiled;
 	PHYSFS_VERSION(&compiled);
 	printf("PhysFS version %d.%d.%d ...\n",	compiled.major, compiled.minor, compiled.patch);
 
-	if (0 == PHYSFS_mount("files//data.zip", NULL, 0))
+	if (0 == PHYSFS_mount("test_files//data.zip", NULL, 0))
 		printf("Error opening file, error: %s\n", PHYSFS_getLastError());
-
-	/*
-	PHYSFS_file* file = PHYSFS_openRead("test.txt");
-	if (!file) {
-		printf("Error opening file inside zip, error: %s\n", PHYSFS_getLastError());
-		return 0;
-	}
-		
-	PHYSFS_sint64 file_size = PHYSFS_fileLength(file);
-	printf("test.txt size: %d\n", (unsigned int)file_size);
-	*/
-	
 
 	while (true)
 	{
@@ -103,12 +114,12 @@ int main(int argc, char* argv[]) {
 
 				}
 			}
-				
 			PHYSFS_freeList(paths);
 		}
 	}
 
 	PHYSFS_deinit();
 
+	*/
 	std::cout << "Exit!" << std::endl;
 }
