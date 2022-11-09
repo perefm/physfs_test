@@ -4,6 +4,8 @@
 #include <fstream>
 
 #include <physfs.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 #include "main.h"
 
@@ -31,8 +33,7 @@ char* readFile(std::string& fileName, int& fileSize)
 void printBuffer(std::string fileName, char* buffer, int buffersize) {
 	printf("File name: %s\n", fileName.c_str());
 	printf("File size: %d\n", buffersize);
-	printf("File content:\n%s\n", buffer);
-	printf("-----------\n");
+	printf("File content:\n%s\n\n", buffer);
 }
 
 int main(int argc, char* argv[]) {
@@ -41,33 +42,58 @@ int main(int argc, char* argv[]) {
 
 	FileManager file;
 
+	char* fileData;
+	uint32_t fileSize;
+
+	unsigned char* imageData;
+	int imageWidth;
+	int imageHeight;
+	int imageComponents;
+
 	// Init PhysFS and mount a FOLDER file
 	file.init(argv[0]);
 	printf("PhysFS version: %s\n", file.getVersion().c_str());
 		
 	file.mountData("test_files"); // Mount a folder
-	char* fileData = nullptr;
-	uint32_t fileSize;
-	bool test = file.loadFileToMem("test_files/kaka.txt", fileData, fileSize); // Open a file from folder
+	file.loadFileToMem("test_files/kaka.txt", fileData, fileSize); // Open a file from folder
 	printBuffer("[FOLDER] test_files/kaka.txt", fileData, fileSize);
-	
-	file.deinit();
 	delete[] fileData;
 	fileSize = 0;
+
+	// Load an image
+	file.loadFileToMem("test_files/tv.jpg", fileData, fileSize); // Open a file from folder
+	printf("[FOLDER] test_files/tv.jpg\n");
+	imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
+	printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
+	stbi_image_free(imageData);
+	delete[] fileData;
+	fileSize = 0;
+
+
+	file.deinit();
 
 	// Init PhysFS and mount a ZIP file
 	file.init(argv[0]);
 	file.mountData("test_files/data.zip");
 	file.loadFileToMem("test.txt", fileData, fileSize);
-	printBuffer("[FILE] test.txt", fileData, fileSize);
-
+	printBuffer("[ZIP] test.txt", fileData, fileSize);
 	delete[] fileData;
 	fileSize = 0;
+
 	file.loadFileToMem("folder two/test.txt", fileData, fileSize);
-	printBuffer("[FILE] folder two/test.txt", fileData, fileSize);
-
+	printBuffer("[ZIP] folder two/test.txt", fileData, fileSize);
 	delete[] fileData;
 	fileSize = 0;
+	
+	// Load an image
+	file.loadFileToMem("images/tv.jpg", fileData, fileSize); // Open a file from folder
+	printf("[ZIP] images/tv.jpg\n");
+	imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
+	printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
+	stbi_image_free(imageData);
+	delete[] fileData;
+	fileSize = 0;
+	
 	file.deinit();
 
 	/*
