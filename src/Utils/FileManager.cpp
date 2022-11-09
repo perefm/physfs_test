@@ -47,6 +47,11 @@ namespace Phoenix
 		return true;
 	}
 
+	void FileManager::setPassword(const std::string_view password)
+	{
+		m_password = password;
+	}
+
 	bool FileManager::loadFileToMem(const std::string_view filePath, char* &fileData, uint32_t &fileSize)
 	{
 		fileSize = 0;
@@ -69,7 +74,12 @@ namespace Phoenix
 			return true;
 		}
 		else {
-			PHYSFS_file* file = PHYSFS_openRead(filePath.data());
+			std::string filePathWithPassword = filePath.data();
+			
+			if (!m_password.empty())
+				filePathWithPassword += std::string("$") + m_password;
+
+			PHYSFS_file* file = PHYSFS_openRead(filePathWithPassword.c_str());
 			if (file == NULL) {
 				return false;
 			}

@@ -74,26 +74,45 @@ int main(int argc, char* argv[]) {
 
 	// Init PhysFS and mount a ZIP file
 	file.init(argv[0]);
-	file.mountData("test_files/data.zip");
-	file.loadFileToMem("test.txt", fileData, fileSize);
-	printBuffer("[ZIP] test.txt", fileData, fileSize);
-	delete[] fileData;
-	fileSize = 0;
+	if (file.mountData("test_files/data.zip")) {
+		if (file.loadFileToMem("test.txt", fileData, fileSize)) {
+			printBuffer("[ZIP] test.txt", fileData, fileSize);
+			delete[] fileData;
+			fileSize = 0;
+		}
 
-	file.loadFileToMem("folder two/test.txt", fileData, fileSize);
-	printBuffer("[ZIP] folder two/test.txt", fileData, fileSize);
-	delete[] fileData;
-	fileSize = 0;
-	
-	// Load an image
-	file.loadFileToMem("images/tv.jpg", fileData, fileSize); // Open a file from folder
-	printf("[ZIP] images/tv.jpg\n");
-	imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
-	printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
-	stbi_image_free(imageData);
-	delete[] fileData;
-	fileSize = 0;
-	
+
+		if (file.loadFileToMem("folder two/test.txt", fileData, fileSize)) {
+			printBuffer("[ZIP] folder two/test.txt", fileData, fileSize);
+			delete[] fileData;
+			fileSize = 0;
+		}
+		
+
+		// Load an image
+		if (file.loadFileToMem("images/tv.jpg", fileData, fileSize)) {
+			printf("[ZIP] images/tv.jpg\n");
+			imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
+			printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
+			stbi_image_free(imageData);
+			delete[] fileData;
+			fileSize = 0;
+		}; 
+		
+	}
+	file.deinit();
+
+	// Init PhysFS and mount a ZIP file with password
+	file.init(argv[0]);
+	if (file.mountData("test_files/data_pass123.zip")) {
+		file.setPassword("123");
+		if (file.loadFileToMem("test.txt", fileData, fileSize)) {
+			printBuffer("[ZIP-PASS] test.txt", fileData, fileSize);
+			delete[] fileData;
+			fileSize = 0;
+		}
+
+	}
 	file.deinit();
 
 	/*

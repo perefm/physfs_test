@@ -18,6 +18,7 @@ namespace Phoenix
 		void deinit();					// Deinit PysFS and unmount any file
 
 		bool mountData(const std::string_view dataFilePath);	// Mount a Data file or folder
+		void setPassword(const std::string_view password);		// Set a password for files
 
 		bool loadFileToMem(const std::string_view filePath, char* &fileData, uint32_t &fileSize);		// Load a file to memory
 
@@ -25,6 +26,7 @@ namespace Phoenix
 
 	private:
 		int m_workingWithDataFolder = true;
+		std::string m_password;
 		std::string m_physfsVersion;
 
 	};
