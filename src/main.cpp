@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "Press ESC to exit!" << std::endl;
 
-	FileManager file;
+	FileManager fileManager;
 
 	char* fileData;
 	uint32_t fileSize;
@@ -51,17 +51,17 @@ int main(int argc, char* argv[]) {
 	int imageComponents;
 
 	// Init PhysFS and mount a FOLDER file
-	file.init(argv[0]);
-	printf("PhysFS version: %s\n", file.getVersion().c_str());
+	fileManager.init(argv[0]);
+	printf("PhysFS version: %s\n", fileManager.getVersion().c_str());
 		
-	file.mountData("test_files"); // Mount a folder
-	file.loadFileToMem("test_files/kaka.txt", fileData, fileSize); // Open a file from folder
+	fileManager.mountData("test_files"); // Mount a folder
+	fileManager.loadFileToMem("test_files/kaka.txt", fileData, fileSize); // Open a file from folder
 	printBuffer("[FOLDER] test_files/kaka.txt", fileData, fileSize);
 	delete[] fileData;
 	fileSize = 0;
 
 	// Load an image
-	file.loadFileToMem("test_files/tv.jpg", fileData, fileSize); // Open a file from folder
+	fileManager.loadFileToMem("test_files/tv.jpg", fileData, fileSize); // Open a file from folder
 	printf("[FOLDER] test_files/tv.jpg\n");
 	imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
 	printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
@@ -70,19 +70,19 @@ int main(int argc, char* argv[]) {
 	fileSize = 0;
 
 
-	file.deinit();
+	fileManager.deinit();
 
 	// Init PhysFS and mount a ZIP file
-	file.init(argv[0]);
-	if (file.mountData("test_files/data.zip")) {
-		if (file.loadFileToMem("test.txt", fileData, fileSize)) {
+	fileManager.init(argv[0]);
+	if (fileManager.mountData("test_files/data.zip")) {
+		if (fileManager.loadFileToMem("test.txt", fileData, fileSize)) {
 			printBuffer("[ZIP] test.txt", fileData, fileSize);
 			delete[] fileData;
 			fileSize = 0;
 		}
 
 
-		if (file.loadFileToMem("folder two/test.txt", fileData, fileSize)) {
+		if (fileManager.loadFileToMem("folder two/test.txt", fileData, fileSize)) {
 			printBuffer("[ZIP] folder two/test.txt", fileData, fileSize);
 			delete[] fileData;
 			fileSize = 0;
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 		
 
 		// Load an image
-		if (file.loadFileToMem("images/tv.jpg", fileData, fileSize)) {
+		if (fileManager.loadFileToMem("images/tv.jpg", fileData, fileSize)) {
 			printf("[ZIP] images/tv.jpg\n");
 			imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
 			printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
@@ -100,22 +100,70 @@ int main(int argc, char* argv[]) {
 		}; 
 		
 	}
-	file.deinit();
+	fileManager.deinit();
 
 	// Init PhysFS and mount a ZIP file with password
-	file.init(argv[0]);
-	if (file.mountData("test_files/data_pass123.zip")) {
-		file.setPassword("123");
-		if (file.loadFileToMem("test.txt", fileData, fileSize)) {
+	fileManager.init(argv[0]);
+	if (fileManager.mountData("test_files/data_pass123.zip")) {
+		fileManager.setPassword("123");
+		if (fileManager.loadFileToMem("test.txt", fileData, fileSize)) {
 			printBuffer("[ZIP-PASS] test.txt", fileData, fileSize);
 			delete[] fileData;
 			fileSize = 0;
 		}
 
 	}
-	file.deinit();
+	fileManager.deinit();
 
-	/*
+
+	/////////////////////
+
+	printf("FILEMANAGER TESTS\n");
+	SP_File myfile;
+	fileManager.init(argv[0]);
+	fileManager.setCache(true);
+	if (fileManager.mountData("test_files/data_pass123.zip")) {
+		fileManager.setPassword("123");
+		fileManager.loadFile("test.txt");
+		myfile = fileManager.loadFile("images/tv.jpg");
+		if (myfile) {
+			imageWidth = imageHeight = imageComponents = 0;
+			imageData = stbi_load_from_memory((unsigned char*)(myfile->m_fileData), myfile->m_fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
+			printf("Image Size: %dx%d - Channels: %d\n", imageWidth, imageHeight, imageComponents);
+			stbi_image_free(imageData);
+		}
+		myfile = fileManager.loadFile("images/tv.jpg");
+		if (myfile) {
+			imageWidth = imageHeight = imageComponents = 0;
+			imageData = stbi_load_from_memory((unsigned char*)(myfile->m_fileData), myfile->m_fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
+			printf("Image Size: %dx%d - Channels: %d\n", imageWidth, imageHeight, imageComponents);
+			stbi_image_free(imageData);
+		}
+		fileManager.loadFile("folder_one/test one.txt");
+		fileManager.loadFile("this should fail.txt");
+
+		printf("Memory: %d\n", fileManager.m_mem);
+		for (auto &pFile: fileManager.file) {
+			printf("Stored file: %s, size: %d\n", pFile->m_filePath.c_str(), pFile->m_fileSize);
+		}
+
+	}
+
+	fileManager.clear();
+	printf("Cleared fileManager...\n");
+	printf("Memory: %d\n", fileManager.m_mem);
+	for (auto& pFile : fileManager.file) {
+		printf("Stored file: %s, size: %d\n", pFile->m_filePath.c_str(), pFile->m_fileSize);
+	}
+
+
+	fileManager.deinit();
+	
+	std::cout << "Exit!" << std::endl;
+}
+
+
+/*
 	// Test: Open a zip file and show the content
 	char c;
 	PHYSFS_init(argv[0]);
@@ -130,7 +178,7 @@ int main(int argc, char* argv[]) {
 	while (true)
 	{
 		c = _getch();
-		
+
 		if (c == 27)
 			break;
 		else if (c == 'l') { // Load all files in base dir
@@ -150,8 +198,8 @@ int main(int argc, char* argv[]) {
 				}
 				else {
 					printf("Found file: [%s].\n", fullPath.c_str());
-					
-					// ReadFile					
+
+					// ReadFile
 					int file_size = 0;
 					char* buffer = readFile(fullPath, file_size);
 					printf("File size: %d\n", file_size);
@@ -166,5 +214,3 @@ int main(int argc, char* argv[]) {
 	PHYSFS_deinit();
 
 	*/
-	std::cout << "Exit!" << std::endl;
-}
