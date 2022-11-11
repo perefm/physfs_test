@@ -57,7 +57,7 @@ namespace Phoenix
 		std::string m_physfsVersion;
 	
 	public:
-		std::vector<SP_File>	file;	// file list
+		std::vector<SP_File>	m_files;	// file list
 		uint32_t				m_mem = 0;	// Memory in bytes loaded to memory
 
 	};

@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 		fileManager.loadFile("this should fail.txt");
 
 		printf("Memory: %d\n", fileManager.m_mem);
-		for (auto &pFile: fileManager.file) {
+		for (auto &pFile: fileManager.m_files) {
 			printf("Stored file: %s, size: %d\n", pFile->m_filePath.c_str(), pFile->m_fileSize);
 		}
 
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
 	fileManager.clear();
 	printf("Cleared fileManager...\n");
 	printf("Memory: %d\n", fileManager.m_mem);
-	for (auto& pFile : fileManager.file) {
+	for (auto& pFile : fileManager.m_files) {
 		printf("Stored file: %s, size: %d\n", pFile->m_filePath.c_str(), pFile->m_fileSize);
 	}
 

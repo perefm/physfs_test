@@ -99,7 +99,7 @@ namespace Phoenix
 	{
 		SP_File p_file;
 
-		for (auto& pFile : file) {
+		for (auto& pFile : m_files) {
 			if (pFile->m_filePath.compare(filePath.data()) == 0)
 				p_file = pFile;
 		}
@@ -107,7 +107,7 @@ namespace Phoenix
 		if (p_file == nullptr) { // If the file has not been found, we need to load it for the first time
 			SP_File new_file = std::make_shared<File>();
 			if (new_file->load(filePath, m_workingWithDataFolder, m_password)) {
-				file.push_back(new_file);
+				m_files.push_back(new_file);
 				m_mem += new_file->m_fileSize;
 				p_file = new_file;
 				printf("File lodaded ok!: %s\n", new_file->m_filePath.c_str());
@@ -138,7 +138,7 @@ namespace Phoenix
 
 	void FileManager::clear()
 	{
-		file.clear();
+		m_files.clear();
 		m_mem = 0;
 	}
 
