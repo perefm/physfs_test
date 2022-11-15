@@ -54,47 +54,6 @@ namespace Phoenix
 		return true;
 	}
 
-	bool FileManager::loadFileToMem(const std::string_view filePath, char* &fileData, uint32_t &fileSize)
-	{
-		fileSize = 0;
-
-		if (m_workingWithDataFolder) {
-			// Working with files
-			// 
-			// Open the stream to 'lock' the file.
-			std::ifstream f(filePath.data(), std::ios::in | std::ios::binary);
-			fileSize = static_cast<uint32_t>(std::filesystem::file_size(filePath.data()));
-
-			// Allocate storage for the buffer
-			fileData = new char[fileSize+1];
-
-			// Read the whole file into the buffer.
-			f.read(fileData, fileSize);
-			fileData[fileSize] = '\0'; // add the terminator
-			f.close();
-
-			return true;
-		}
-		else {
-			std::string filePathWithPassword = filePath.data();
-			
-			if (!m_password.empty())
-				filePathWithPassword += std::string("$") + m_password;
-
-			PHYSFS_file* file = PHYSFS_openRead(filePathWithPassword.c_str());
-			if (file == NULL) {
-				return false;
-			}
-
-			fileSize = static_cast<int>(PHYSFS_fileLength(file));
-
-			fileData = new char[fileSize+1];
-			PHYSFS_read(file, fileData, 1, static_cast<PHYSFS_uint32>(fileSize));
-			fileData[fileSize] = '\0'; // add the terminator
-			PHYSFS_close(file);
-			return true;
-		}
-	}
 	SP_File FileManager::loadFile(const std::string_view filePath)
 	{
 		SP_File p_file;
@@ -130,9 +89,7 @@ namespace Phoenix
 			else {
 				printf("File already in memory: %s\n", filePath.data());
 			}
-
 		}
-
 		return p_file;
 	}
 

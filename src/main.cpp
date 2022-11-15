@@ -36,87 +36,19 @@ void printBuffer(std::string fileName, char* buffer, int buffersize) {
 	printf("File content:\n%s\n\n", buffer);
 }
 
+struct sImage {
+	unsigned char* imageData;
+	int imageWidth;
+	int imageHeight;
+	int imageComponents;
+};
+
 int main(int argc, char* argv[]) {
 
 	std::cout << "Press ESC to exit!" << std::endl;
 
 	FileManager fileManager;
-
-	char* fileData;
-	uint32_t fileSize;
-
-	unsigned char* imageData;
-	int imageWidth;
-	int imageHeight;
-	int imageComponents;
-
-	// Init PhysFS and mount a FOLDER file
-	fileManager.init(argv[0]);
-	printf("PhysFS version: %s\n", fileManager.getVersion().c_str());
-		
-	fileManager.mountData("test_files"); // Mount a folder
-	fileManager.loadFileToMem("test_files/kaka.txt", fileData, fileSize); // Open a file from folder
-	printBuffer("[FOLDER] test_files/kaka.txt", fileData, fileSize);
-	delete[] fileData;
-	fileSize = 0;
-
-	// Load an image
-	fileManager.loadFileToMem("test_files/tv.jpg", fileData, fileSize); // Open a file from folder
-	printf("[FOLDER] test_files/tv.jpg\n");
-	imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
-	printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
-	stbi_image_free(imageData);
-	delete[] fileData;
-	fileSize = 0;
-
-
-	fileManager.deinit();
-
-	// Init PhysFS and mount a ZIP file
-	fileManager.init(argv[0]);
-	if (fileManager.mountData("test_files/data.zip")) {
-		if (fileManager.loadFileToMem("test.txt", fileData, fileSize)) {
-			printBuffer("[ZIP] test.txt", fileData, fileSize);
-			delete[] fileData;
-			fileSize = 0;
-		}
-
-
-		if (fileManager.loadFileToMem("folder two/test.txt", fileData, fileSize)) {
-			printBuffer("[ZIP] folder two/test.txt", fileData, fileSize);
-			delete[] fileData;
-			fileSize = 0;
-		}
-		
-
-		// Load an image
-		if (fileManager.loadFileToMem("images/tv.jpg", fileData, fileSize)) {
-			printf("[ZIP] images/tv.jpg\n");
-			imageData = stbi_load_from_memory((unsigned char*)fileData, fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
-			printf("Size: %dx%d - Channels: %d\n\n", imageWidth, imageHeight, imageComponents);
-			stbi_image_free(imageData);
-			delete[] fileData;
-			fileSize = 0;
-		}; 
-		
-	}
-	fileManager.deinit();
-
-	// Init PhysFS and mount a ZIP file with password
-	fileManager.init(argv[0]);
-	if (fileManager.mountData("test_files/data_pass123.zip")) {
-		fileManager.setPassword("123");
-		if (fileManager.loadFileToMem("test.txt", fileData, fileSize)) {
-			printBuffer("[ZIP-PASS] test.txt", fileData, fileSize);
-			delete[] fileData;
-			fileSize = 0;
-		}
-
-	}
-	fileManager.deinit();
-
-
-	/////////////////////
+	sImage image;
 
 	printf("FILEMANAGER TESTS\n");
 	SP_File myfile;
@@ -127,17 +59,17 @@ int main(int argc, char* argv[]) {
 		fileManager.loadFile("test.txt");
 		myfile = fileManager.loadFile("images/tv.jpg");
 		if (myfile) {
-			imageWidth = imageHeight = imageComponents = 0;
-			imageData = stbi_load_from_memory((unsigned char*)(myfile->m_fileData), myfile->m_fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
-			printf("Image Size: %dx%d - Channels: %d\n", imageWidth, imageHeight, imageComponents);
-			stbi_image_free(imageData);
+			image.imageWidth = image.imageHeight = image.imageComponents = 0;
+			image.imageData = stbi_load_from_memory((unsigned char*)(myfile->m_fileData), myfile->m_fileSize, &image.imageWidth, &image.imageHeight, &image.imageComponents, 0);
+			printf("Image Size: %dx%d - Channels: %d\n", image.imageWidth, image.imageHeight, image.imageComponents);
+			stbi_image_free(image.imageData);
 		}
 		myfile = fileManager.loadFile("images/tv.jpg");
 		if (myfile) {
-			imageWidth = imageHeight = imageComponents = 0;
-			imageData = stbi_load_from_memory((unsigned char*)(myfile->m_fileData), myfile->m_fileSize, &imageWidth, &imageHeight, &imageComponents, 0);
-			printf("Image Size: %dx%d - Channels: %d\n", imageWidth, imageHeight, imageComponents);
-			stbi_image_free(imageData);
+			image.imageWidth = image.imageHeight = image.imageComponents = 0;
+			image.imageData = stbi_load_from_memory((unsigned char*)(myfile->m_fileData), myfile->m_fileSize, &image.imageWidth, &image.imageHeight, &image.imageComponents, 0);
+			printf("Image Size: %dx%d - Channels: %d\n", image.imageWidth, image.imageHeight, image.imageComponents);
+			stbi_image_free(image.imageData);
 		}
 		fileManager.loadFile("folder_one/test one.txt");
 		fileManager.loadFile("this should fail.txt");

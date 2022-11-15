@@ -35,20 +35,17 @@ namespace Phoenix
 
 		void init(const char* argv0);	// Init PhysFS
 		void deinit();					// Deinit PysFS and unmount any file
+		const std::string getVersion() { return m_physfsVersion; };
 
 		bool mountData(const std::string_view dataFilePath);	// Mount a Data file or folder
 		void setPassword(const std::string_view password) { m_password = password; };		// Set a password for files
 		void clearPassword() { m_password = ""; };
 
 		void setCache(bool cacheEnabled) { m_fileCache = cacheEnabled; };
-
-		bool loadFileToMem(const std::string_view filePath, char* &fileData, uint32_t &fileSize);		// Load a file to memory
 		SP_File loadFile(const std::string_view filePath);		// Load a file to memory
-
 		void clear();	// delete all files from memory
 
-		const std::string getVersion() { return m_physfsVersion; };
-
+		
 	private:
 		bool m_workingWithDataFolder;
 		bool m_fileCache;				// If cache is disabled, file data will be refreshed even if the file exists
