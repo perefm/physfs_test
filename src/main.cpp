@@ -49,11 +49,11 @@ int main(int argc, char* argv[]) {
 
 	FileManager fileManager;
 	sImage image;
-
-	printf("FILEMANAGER TESTS\n");
 	SP_File myfile;
+
+	printf(">>>>>>>>>> ZIP file with Password\n");
 	fileManager.init(argv[0]);
-	fileManager.setCache(true);
+	fileManager.setCache(false);
 	if (fileManager.mountData("test_files/data_pass123.zip")) {
 		fileManager.setPassword("123");
 		fileManager.loadFile("test.txt");
@@ -80,15 +80,42 @@ int main(int argc, char* argv[]) {
 		}
 
 	}
-
 	fileManager.clear();
 	printf("Cleared fileManager...\n");
 	printf("Memory: %d\n", fileManager.m_mem);
 	for (auto& pFile : fileManager.m_files) {
 		printf("Stored file: %s, size: %d\n", pFile->m_filePath.c_str(), pFile->m_fileSize);
 	}
+	fileManager.deinit();
 
 
+
+	printf(">>>>>>>>>> Folder\n");
+	fileManager.init(argv[0]);
+	fileManager.setCache(false);
+	if (fileManager.mountData("test_files")) {
+		fileManager.setPassword("");
+		fileManager.loadFile("test_files/kaka.txt");
+		myfile = fileManager.loadFile("test_files/tv.jpg");
+		if (myfile) {
+			image.imageWidth = image.imageHeight = image.imageComponents = 0;
+			image.imageData = stbi_load_from_memory((unsigned char*)(myfile->m_fileData), myfile->m_fileSize, &image.imageWidth, &image.imageHeight, &image.imageComponents, 0);
+			printf("Image Size: %dx%d - Channels: %d\n", image.imageWidth, image.imageHeight, image.imageComponents);
+			stbi_image_free(image.imageData);
+		}
+
+		printf("Memory: %d\n", fileManager.m_mem);
+		for (auto& pFile : fileManager.m_files) {
+			printf("Stored file: %s, size: %d\n", pFile->m_filePath.c_str(), pFile->m_fileSize);
+		}
+
+	}
+	fileManager.clear();
+	printf("Cleared fileManager...\n");
+	printf("Memory: %d\n", fileManager.m_mem);
+	for (auto& pFile : fileManager.m_files) {
+		printf("Stored file: %s, size: %d\n", pFile->m_filePath.c_str(), pFile->m_fileSize);
+	}
 	fileManager.deinit();
 	
 	std::cout << "Exit!" << std::endl;

@@ -127,17 +127,20 @@ namespace Phoenix
 			// 
 			// Open the stream to 'lock' the file.
 			std::ifstream f(filePath.data(), std::ios::in | std::ios::binary);
-			m_fileSize = static_cast<uint32_t>(std::filesystem::file_size(filePath.data()));
+			if (f) {
+				m_fileSize = static_cast<uint32_t>(std::filesystem::file_size(filePath.data()));
 
-			// Allocate storage for the buffer
-			m_fileData = new char[m_fileSize + 1];
+				// Allocate storage for the buffer
+				m_fileData = new char[m_fileSize + 1];
 
-			// Read the whole file into the buffer.
-			f.read(m_fileData, m_fileSize);
-			m_fileData[m_fileSize] = '\0'; // add the terminator
-			f.close();
-
-			return true;
+				// Read the whole file into the buffer.
+				f.read(m_fileData, m_fileSize);
+				m_fileData[m_fileSize] = '\0'; // add the terminator
+				f.close();
+				return true;
+			}
+			else
+				return false;
 		}
 		else {
 			std::string filePathWithPassword = filePath.data();
